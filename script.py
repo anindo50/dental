@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import requests as req
 
 
+
 data_dict = dict(
         product_name = [],
         brand_name = [],
@@ -20,14 +21,11 @@ data_dict = dict(
         price = [],
         img_url = [],
         product_link = [],
-        brochure = [],
         )
 
 def process():
     "It will start all the process and will return true upon completed"
-    
     brand_url = "https://www.pearsondental.com/catalog/product_bybrand_mfg.asp"
-    
     brand_links = scrape_brand_links(
         get_soup_object_from_request(
                 brand_url
@@ -79,16 +77,15 @@ def scrape_product_links(links):
     Takes list of links of brands
     return all the products link in a list
     """
-    total_links = []
     for link in links:
         p_s = get_soup_object_from_request(link)
         product_links = p_s.find_all('a',class_='subcat')
-        product_links = [total_links.append(i.get('href')) for i in product_links]
+        product_links = [i.get('href') for i in product_links]
 
     
     print("All the product links scraped")    
     
-    return total_links
+    return product_links
 
 
 
@@ -98,42 +95,12 @@ def scrape_product_info(product_links):
     Returns True is completed
     use code like this to append the data -> data_dict['price'].append('data')
     """
-    url = "https://www.pearsondental.com"
-    #data_soup.find_all(attrs={"data-foo": "value"})
-    for index, product_link in enumerate(product_links):
-        c = get_soup_object_from_request((url + product_link))
-        
-        table = c.find(attrs={"style": "background-color: #333333;"}).parent
-            
-        cells = table.find_all("tr", attrs={"valign": "top"})
-        for cell in cells:
-            data_dict['product_link'].append((url + product_link))
-            data_dict['product_name'].append(cell.find("font", class_="link2").text)
-            data_dict['mfg_part'].append(cell.find("font", attrs={"color":"000000"}).text.replace("Mfg. Part #: ",""))
-            data_dict['item_no'].append(cell.find("td",attrs={"align":"center"}).find("b").text)
-            data_dict['price'].append(cell.find("font", class_="maroon").text)
-            
-            try:
-                data_dict['img_url'].append(
-                        url + \
-                         c.find("a", class_="MagicZoom").get("href"))
-            except:
-                data_dict['img_url'].append("")
-                
-            data_dict['description'].append(c.find("table",class_="link2", attrs={"width":"400"}).text.strip()\
-                     .replace("Best Seller",""))
-            data_dict['brand_name'].append(c.find("table",class_="link2", attrs={"width":"400"}).parent.find("strong").text\
-            .replace("(","").replace(")",""))
-           
-            try:
-                data_dict['brochure'].append(c.find(text="Click for Brochure").parent.parent.parent.get('href'))
-            except AttributeError:
-                data_dict['brochure'].append("")
-                
-        print()    
-        print("Product Left:", str(len(product_links)-index))
-                
-                
+    
+    # Enter Loop for product_links
+    
+    # Enter loop for Description/Package field(multiple products)
+    
+    # Append All the stuff
     
     return True
     
