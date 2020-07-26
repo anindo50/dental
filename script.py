@@ -36,7 +36,7 @@ def process():
     
     product_links = scrape_product_links(brand_links)
     
-    status = scrape_product_info(product_links)
+    status = scrape_product_info(product_links[3465:])
     
     if status:
         export_csv(data_dict)
@@ -101,9 +101,13 @@ def scrape_product_info(product_links):
     url = "https://www.pearsondental.com"
     #data_soup.find_all(attrs={"data-foo": "value"})
     for index, product_link in enumerate(product_links):
+        print((url + product_link))  
         c = get_soup_object_from_request((url + product_link))
         
-        table = c.find(attrs={"style": "background-color: #333333;"}).parent
+        try:
+            table = c.find(attrs={"style": "background-color: #333333;"}).parent
+        except:
+            table = c.find(attrs={"bgcolor": "#333333"}).parent
             
         cells = table.find_all("tr", attrs={"valign": "top"})
         for cell in cells:
@@ -119,19 +123,29 @@ def scrape_product_info(product_links):
                          c.find("a", class_="MagicZoom").get("href"))
             except:
                 data_dict['img_url'].append("")
-                
-            data_dict['description'].append(c.find("table",class_="link2", attrs={"width":"400"}).text.strip()\
-                     .replace("Best Seller",""))
-            data_dict['brand_name'].append(c.find("table",class_="link2", attrs={"width":"400"}).parent.find("strong").text\
-            .replace("(","").replace(")",""))
+             
+            try:
+                data_dict['description'].append(c.find("table",class_="link2", attrs={"width":"400"}).text.strip()\
+                         .replace("Best Seller",""))
+            except:
+                data_dict['description'].append("")
+             
+            
+            try:
+                data_dict['brand_name'].append(c.find("h1").parent.find("strong").text.replace("(","").replace(")",""))
+            except:
+                data_dict['brand_name'].append("")
+            
+            
            
             try:
                 data_dict['brochure'].append(c.find(text="Click for Brochure").parent.parent.parent.get('href'))
             except AttributeError:
                 data_dict['brochure'].append("")
                 
-        print()    
+          
         print("Product Left:", str(len(product_links)-index))
+        print()
                 
                 
     
@@ -147,3 +161,7 @@ def export_csv(data_dict):
     dataFrame.to_csv("data.csv", mode='w', header=True, index=False)
     print("Data.csv exported")
     return True
+
+
+# Start the process
+process()
